@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'questions.dart';
+import 'quizbrain.dart';
+
+QuizBrain quizBrain = QuizBrain();
 
 void main() => runApp(Quiz());
 
@@ -41,33 +43,29 @@ class _QuizPageState extends State<QuizPage> {
 
   // List<bool> answers = [true, false, false, true];
 
-  List<Questions> qna = [
-    Questions(q: 'Edgar Wright was the original director of Ant-Man (2015).', a: true),
-    Questions(q: 'Emma Fuhrmann plays the role of daughter of Clint Barton.', a: false),
-    Questions(q: 'Originally, the role of Darren Cross was to be played by Patrick Wilson', a: false),
-    Questions(q: 'Zack Snyder referred to Ant-Man (2015) as "Flavour of the Week".', a: true),
-  ]; 
-
-  int questionNumber = 0;
   int score = 0;
 
   void correctResponse() {
-    score += 1;
-    scoreKeeper.add(
-      Icon(
-        Icons.check,
-        color: Colors.green,
-      ),
-    );
+    if (quizBrain.quizFinished() == false) {
+      score += 1;
+      scoreKeeper.add(
+        Icon(
+          Icons.check,
+          color: Colors.green,
+        ),
+      );
+    }
   }
 
   void wrongResponse() {
-    scoreKeeper.add(
-      Icon(
-        Icons.close,
-        color: Colors.red,
-      ),
-    );
+    if (quizBrain.quizFinished() == false) {
+      scoreKeeper.add(
+        Icon(
+          Icons.close,
+          color: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -82,7 +80,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                qna[questionNumber].questionText,
+                quizBrain.getQuestion(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -108,12 +106,12 @@ class _QuizPageState extends State<QuizPage> {
               onPressed: () {
                 setState(
                   () {
-                    if (qna[questionNumber].questionAnswer == true) {
+                    if (quizBrain.getAnswer() == true) {
                       correctResponse();
                     } else {
                       wrongResponse();
                     }
-                    questionNumber += 1;
+                    quizBrain.nextQuestion();
                   },
                 );
               },
@@ -135,12 +133,12 @@ class _QuizPageState extends State<QuizPage> {
               onPressed: () {
                 setState(
                   () {
-                    if (qna[questionNumber].questionAnswer == false) {
+                    if (quizBrain.getAnswer() == false) {
                       correctResponse();
                     } else {
                       wrongResponse();
                     }
-                    questionNumber += 1;
+                    quizBrain.nextQuestion();
                   },
                 );
               },
