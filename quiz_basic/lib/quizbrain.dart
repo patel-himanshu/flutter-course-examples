@@ -25,7 +25,7 @@ class QuizBrain {
   }
 
   bool quizFinished() {
-    if (_questionNumber > _qna.length - 1) {
+    if (_questionNumber >= _qna.length - 1) {
       print('GAME OVER');
       return true;
     } else {

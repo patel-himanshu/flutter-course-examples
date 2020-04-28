@@ -38,73 +38,58 @@ class _QuizPageState extends State<QuizPage> {
 
   void answerCheck(bool userResponse) {
     setState(() {
-      if (userResponse == quizBrain.getAnswer()) {
-        score += 1;
-        scoreKeeper.add(Icon(
-          Icons.check,
-          color: Colors.green,
-        ));
+      if (quizBrain.quizFinished() == false) {
+        if (userResponse == quizBrain.getAnswer()) {
+          score += 1;
+          scoreKeeper.add(Icon(
+            Icons.check,
+            color: Colors.green,
+          ));
+        } else {
+          scoreKeeper.add(Icon(
+            Icons.close,
+            color: Colors.red,
+          ));
+        }
+        quizBrain.nextQuestion();
       } else {
-        scoreKeeper.add(Icon(
-          Icons.close,
-          color: Colors.red,
-        ));
-      }
-      quizBrain.nextQuestion();
-    });
-  }
-
-  Widget getWidget() {
-    // (Widget for Question) If quiz is not finished
-    if (quizBrain.quizFinished() == false) {
-      Text textQuestion = Text(
-        quizBrain.getQuestion(),
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 25.0,
-          color: Colors.white,
-        ),
-      );
-      return textQuestion;
-    }
-    // (Widget for Question) If quiz is finished
-     else {
-      var alertStyle = AlertStyle(
-        animationType: AnimationType.fromTop,
-        isCloseButton: false,
-        isOverlayTapDismiss: false,
-        animationDuration: Duration(milliseconds: 500),
-        alertBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
-          side: BorderSide(
-            color: Colors.grey,
-          ),
-        ),
-        titleStyle: TextStyle(
-          color: Colors.red,
-        ),
-      );
-      Alert(
-        context: context,
-        style: alertStyle,
-        title: "QUIZ HAS BEEN COMPLETED",
-        desc: "Your Score is $score",
-        buttons: [
-          DialogButton(
-            child: Text(
-              "RETAKE QUIZ",
-              style: TextStyle(color: Colors.white, fontSize: 20),
+        var alertStyle = AlertStyle(
+          animationType: AnimationType.fromTop,
+          isCloseButton: false,
+          isOverlayTapDismiss: false,
+          animationDuration: Duration(milliseconds: 500),
+          alertBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+            side: BorderSide(
+              color: Colors.grey,
             ),
-            onPressed: () => Navigator.pop(context),
-            color: Color.fromRGBO(0, 179, 134, 1.0),
-            radius: BorderRadius.circular(0.0),
           ),
-        ],
-      ).show();
-      quizBrain.quizReset();
-      score = 0;
-      scoreKeeper = [];
-    }
+          titleStyle: TextStyle(
+            color: Colors.red,
+          ),
+        );
+        Alert(
+          context: context,
+          style: alertStyle,
+          title: "QUIZ HAS BEEN COMPLETED",
+          desc: "Your Score is $score",
+          buttons: [
+            DialogButton(
+              child: Text(
+                "RETAKE QUIZ",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              color: Color.fromRGBO(0, 179, 134, 1.0),
+              radius: BorderRadius.circular(0.0),
+            ),
+          ],
+        ).show();
+        quizBrain.quizReset();
+        score = 0;
+        scoreKeeper = [];
+      }
+    });
   }
 
   @override
@@ -117,7 +102,16 @@ class _QuizPageState extends State<QuizPage> {
           flex: 5,
           child: Padding(
             padding: EdgeInsets.all(10.0),
-            child: Center(child: getWidget()),
+            child: Center(
+              child: Text(
+                quizBrain.getQuestion(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 25.0,
+                  color: Colors.white,
+                ),
+              ),
+            ),
           ),
         ),
         Expanded(
