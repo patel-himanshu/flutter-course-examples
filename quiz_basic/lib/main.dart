@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'quizbrain.dart';
 
 QuizBrain quizBrain = QuizBrain();
@@ -33,38 +34,76 @@ class QuizPage extends StatefulWidget {
 
 class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper = [];
-
-  // List<String> questions = [
-  //   'Edgar Wright was the original director of Ant-Man (2015).',
-  //   'Emma Fuhrmann plays the role of daughter of Clint Barton.',
-  //   'Originally, the role of Darren Cross was to be played by Patrick Wilson.',
-  //   'Zack Snyder referred to Ant-Man (2015) as "Flavour of the Week".'
-  // ];
-
-  // List<bool> answers = [true, false, false, true];
-
   int score = 0;
 
-  void correctResponse() {
-    if (quizBrain.quizFinished() == false) {
-      score += 1;
-      scoreKeeper.add(
-        Icon(
+  void answerCheck(bool userResponse) {
+    setState(() {
+      if (userResponse == quizBrain.getAnswer()) {
+        score += 1;
+        scoreKeeper.add(Icon(
           Icons.check,
           color: Colors.green,
-        ),
-      );
-    }
+        ));
+      } else {
+        scoreKeeper.add(Icon(
+          Icons.close,
+          color: Colors.red,
+        ));
+      }
+      quizBrain.nextQuestion();
+    });
   }
 
-  void wrongResponse() {
+  Widget getWidget() {
+    // (Widget for Question) If quiz is not finished
     if (quizBrain.quizFinished() == false) {
-      scoreKeeper.add(
-        Icon(
-          Icons.close,
+      Text textQuestion = Text(
+        quizBrain.getQuestion(),
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 25.0,
+          color: Colors.white,
+        ),
+      );
+      return textQuestion;
+    }
+    // (Widget for Question) If quiz is finished
+     else {
+      var alertStyle = AlertStyle(
+        animationType: AnimationType.fromTop,
+        isCloseButton: false,
+        isOverlayTapDismiss: false,
+        animationDuration: Duration(milliseconds: 500),
+        alertBorder: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5.0),
+          side: BorderSide(
+            color: Colors.grey,
+          ),
+        ),
+        titleStyle: TextStyle(
           color: Colors.red,
         ),
       );
+      Alert(
+        context: context,
+        style: alertStyle,
+        title: "QUIZ HAS BEEN COMPLETED",
+        desc: "Your Score is $score",
+        buttons: [
+          DialogButton(
+            child: Text(
+              "RETAKE QUIZ",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () => Navigator.pop(context),
+            color: Color.fromRGBO(0, 179, 134, 1.0),
+            radius: BorderRadius.circular(0.0),
+          ),
+        ],
+      ).show();
+      quizBrain.quizReset();
+      score = 0;
+      scoreKeeper = [];
     }
   }
 
@@ -78,16 +117,7 @@ class _QuizPageState extends State<QuizPage> {
           flex: 5,
           child: Padding(
             padding: EdgeInsets.all(10.0),
-            child: Center(
-              child: Text(
-                quizBrain.getQuestion(),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 25.0,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            child: Center(child: getWidget()),
           ),
         ),
         Expanded(
@@ -104,16 +134,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                setState(
-                  () {
-                    if (quizBrain.getAnswer() == true) {
-                      correctResponse();
-                    } else {
-                      wrongResponse();
-                    }
-                    quizBrain.nextQuestion();
-                  },
-                );
+                answerCheck(true);
               },
             ),
           ),
@@ -131,16 +152,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                setState(
-                  () {
-                    if (quizBrain.getAnswer() == false) {
-                      correctResponse();
-                    } else {
-                      wrongResponse();
-                    }
-                    quizBrain.nextQuestion();
-                  },
-                );
+                answerCheck(false);
               },
             ),
           ),
